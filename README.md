@@ -6,3 +6,9 @@ For information on tokenize, https://docs.python.org/3/library/tokenize.html
 
 - Input: a file name
 - Output, a table with the names defined in the program, and the line numbers where they were used.
+
+- No help has been created
+
+Sample run: try 
+
+python xref_var_table.py xref_var_table.py
