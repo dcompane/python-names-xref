@@ -32,9 +32,10 @@ def type_of_name(type_name=''):
     """
     Returns the type of name
         if found in the builtins, reserved ,
-            returns buitin or reserved, respectively
+            returns builtin or reserved, respectively
         else
             returns pgm/module indicating is a name defined in the program
+               or an imported module
     :param type_name: string
     :return: string
     """
@@ -51,8 +52,12 @@ try:
     file = open(argv[1], 'rb')
     tokenized = tokenize.tokenize(file.readline)
 except FileNotFoundError as error:
-    print('"File not found: ' + str(error))
+    print('File not found: ' + str(error))
     exit(1)
+except tokenize.TokenError as error:
+    print('Tokenized file error: ' + str(error))
+    exit(1)
+
 
 xref_vars = {}
 for token in tokenized:
@@ -63,23 +68,24 @@ for token in tokenized:
             xref_vars[token.string] = {'lines': [], 'type': ''}
 
         # Load the dict with values
-            # Add the line number to the list of lines, if not there
+        # Add the line number to the list of lines, if not there
         if token.start[0] not in xref_vars[token.string]['lines']:
             xref_vars[token.string]['lines'].append(token.start[0])
-            # Add the type of name found.
+        # Add the type of name found.
         xref_vars[token.string]['type'] = type_of_name(token.string)
 
 # Calculate the max key for the tabulation
 # sort reverse by length of key (longer is first after sorting)
+#  Trying to reduce number of imports. Use tabulate if you prefer.
 max_key_len = len(sorted(xref_vars.items(), key=lambda s: len(s[0]), reverse=True)[0][0])
 
 # Print the xref table
-print('Name', ' '* (max_key_len-1),
+print('Name', ' ' * (max_key_len - 1),
       'Var Type', ' ' * 5,
       'Line numbers')
 for key in sorted(xref_vars.keys(), key=lambda s: s.lower()):
-    print(key, ' ' * (max_key_len+3-len(key)),
-          xref_vars[key]['type'], ' ' * (13-len(xref_vars[key]['type'])),
+    print(key, ' ' * (max_key_len + 3 - len(key)),
+          xref_vars[key]['type'], ' ' * (13 - len(xref_vars[key]['type'])),
           xref_vars[key]['lines'])
 
 exit(0)
